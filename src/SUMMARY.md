@@ -10,3 +10,5 @@
 - [Build Indexer](./build_indexer.md)
 
 # Reference Guide
+
+- [JSON-RPC API](./reference/json-rpc-api.md)
