@@ -73,3 +73,5 @@ A [Rust library](https://github.com/hybrid-explorer/hybrid-api-rs/) has been dev
 * logging is now performed by the `tracing` crate rather than `log`
 * [polkadot-indexer](https://github.com/hybrid-explorer/polkadot-indexer/) has been updated to the latest metadata.
 * [hybrid-cli](https://github.com/hybrid-explorer/hybrid-cli) has been created enabling querying of Hybrid indexes from the command line using hybrid-api-rs
+* head indexing no longer interrupts batch indexing
+* sporadic lockups while downloading metadata no longer occurs
