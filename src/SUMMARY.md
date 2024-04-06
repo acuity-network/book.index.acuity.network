@@ -5,6 +5,15 @@
 
 # Architecture
 
+- [Chain Types](./chain_types.md)
+  - [Avalanche]()
+  - [Bitcoin]()
+  - [Cosmos]()
+  - [Ethereum](./chain_types/ethereum.md)
+  - [Solana]()
+  - [Substrate](./chain_types/substrate.md)
+    - [Roadmap](./chain_types/substrate/roadmap.md)
+
 # User Guide
 
 - [Build Indexer](./build_indexer.md)
