@@ -1,4 +1,4 @@
-# Ethereum
+# EVM
 
 Ethereum [events](https://docs.soliditylang.org/en/latest/contracts.html#events) have a data structure called "topics". Full nodes will use a [bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) for accelerated scanning of topics for specific values. This has a number of issues:
 
