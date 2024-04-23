@@ -3,4 +3,4 @@ authors = ["Jonathan Brown"]
 language = "en"
 multilingual = false
 src = "src"
-title = "Hybrid Indexer"
+title = "Acuity Index"

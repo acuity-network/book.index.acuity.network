@@ -14,6 +14,7 @@
   - [Solana]()
   - [Substrate](./chain_types/substrate.md)
     - [Roadmap](./chain_types/substrate/roadmap.md)
+    - [Comparisons](./chain_types/substrate/comparisons.md)
 
 # User Guide
 
