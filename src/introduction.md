@@ -2,34 +2,112 @@
 
 The Web is in decline due to [enshittification](https://en.wikipedia.org/wiki/Enshittification), a term popularized by Cory Doctorow. Although Doctorow does not know this, open source decentralized applications (dapps) reaching state consensus via the blockchain is critical to overcome this problem and for the Web to succeed in its mission to save humanity.
 
-The underlying reason why enshittification occurs is because popular web platforms are owned and controlled by centralized organizations that ultimately do not do what is best for their users. Dapps on the other hand are either fully autonomous, or controlled by decentralized organizations (DAOs).
+The underlying reason why enshittification occurs is because popular web platforms are owned and controlled by centralized organizations that ultimately do not do what is best for their users. Dapps on the other hand are either fully autonomous (never change), or are governed by decentralized autonomous organizations (DAOs).
 
 However, blockchain dapps have a number of major issues that prevents them from usurping the centralized platforms. Acuity Index is the solution to one of these problems. Another critical problem Acuity is solving is debasement.
 
 ## The Problem
 
-Dapps need to query blockchain state and events (logs). Current state can be read and modified by subsequent extrinsics (transactions). Historic state can be read externally. Events can be written by extrinsics, but only read externally.
+Dapps need to write to and query blockchain state, events (logs) and decentralized filesystems such as IPFS. Current state can be read and modified on-chain by extrinsics (transactions). Historic state can be read off-chain. Events can be written by extrinsics, but only read off-chain. Files on IPFS can only be written and read off-chain, but the hash of the file can be stored on-chain in state or an event.
 
-For example, the balance of an address is stored in state, but the record of balance transfers is stored in events. Writing data to an event is considerably cheaper than writing it to state.
+|               | Read         | Write     | Modify   | 
+|---------------|--------------|-----------|----------|
+|Current State  | on/off-chain | on-chain  | on-chain |
+|Historic State | off-chain    |           |          |
+|Events         | off-chain    | on-chain  |          |
+|IPFS           | off-chain    | off-chain |          |
 
-Additionally, dapps need to be able to search events. For example, a wallet dapp needs to be able to find every balance transfer event either from or to the user's address. There may be some circumstances where it is also useful to search state.
+Writing data to an event is considerably cheaper than writing it to state. IPFS is free, except for storage and bandwidth costs to keep a file "pinned".
 
-A critical component of the decentralized web is decentralized applications (dapps). End users need a way to interact with a peer-to-peer system without relying on a centralized backend. Otherwise, [Enshittification](https://en.wikipedia.org/wiki/Enshittification) occurs.
+For example, the balance of an address must be stored in state. This is necessary so that it can be checked that an account has enough balance for a transfer. The record of balance transfers is stored in events to reduce transaction fees. A user's public avatar and blog posts would be stored on IPFS with only the hashes stored in events.
 
-Reading chain state from an RPC server not controlled by the user has a number of issues:
+Dapps need to be able to search decentralized data. For example, a wallet dapp needs to be able to find every balance transfer event either from or to the user's address. A map dapp needs to perform geospatial search on GPS coordinates stored in events. A feed reader dapp needs to be able to perform full-text search stored on IPFS.
 
-* the data could be incorrect
-* the server may not be functioning
-* the server may be slow to return data
-* the server may have limits, e.g. max query time, max block scanable, block scanning available
-* geoblocking - some RPC providers block access from certain countries
-* the server could be logging data of which ip addresses are making which queries
+Currently, Ethereum dapps will typically use the Metamask browser extension or similar to query a centralized RPC provider to read the state, search for events and broadcast transactions.
 
-One solution is for the user to run their own full node for each chain that is being queried, but this is almost never practical. Running a full node typically requires terabytes of data bandwidth and can take days to become synced.
+This arrangement has a number of issues that undermines the decentralized nature of dapps:
 
-Therefore, a blockchain dapp cannot trust an RPC server not controlled by the user to read chain state. They must query full nodes and verify the state using a light client.
+### Incorrect or missing data
 
-In addition to reading chain state, dapps typically need to search historic blocks for events. For example, a wallet dapp would want to be able to display a list of balance transfers to and from the user's account.
+The provider may return missing or incorrect results. This could be used to trick the user into doing something self-harming.
+
+### Geoblocking
+
+some RPC providers block access from certain countries
+
+### Unavailability
+
+The provider may not be operating at all.
+
+### KYC
+
+The RPC provider may require the user to prove their real-world identity before they can use the service.
+
+### Tracking
+
+The provider could be logging data of which ip addresses are making which queries. 
+
+### No event searching
+
+While Ethereum does have a form of event searching built into full nodes, Substrate chains do not.
+
+### Search limits
+
+The provider may have limits, e.g. max query time, max blocks scannable, block scanning available
+
+### Unknown search limits
+
+### Slow queries
+
+The event indexing built into Ethereum uses a form of accelerated scanning using bloom filters. This is considerably slower to query than a real database index and uses more resources.
+
+The provider may take a long time to respond to a query, giving the user a poor experience.
+
+### More expensive transactions
+
+Because searching for logs is unreliable, architects of smart contracts and Substrate pallets may decide to store data in state where it can be more easily retrieved. This is more expensive. The additional use of block-space will also make all other transactions on the chain more expensive.
+
+### No standard payment API
+
+There are various services that offer paid access to high quality node, but there is no standard for how to pay for them. This creates a lot of friction for users that want to switch between different services.
+
+## The Solution
+
+One solution is for the user to run their own full node for each chain that is being queried, but this is almost never practical. Running a full node typically requires terabytes of storage & bandwidth and can take weeks to become synced.
+
+Dapps can query full nodes and use a light client to cryptographically verify the results are correct. In fact, Ethereum and Substrate are both introducing improvements to their light client technology. This solves the problem of incorrect data.
+
+However, this does not solve all the other problems. This is where Acuity Index comes in.
+
+An Acuity Index node runs alongside the node it is indexing. In its simplest implementation it maintains an index of block number and event index for each key, for example account id.
+
+For EVM-based chains such as Ethereum it needs to know the schema for each smart contract it is indexing. For Substrate-based chains it needs to know the schema of the runtime.
+
+### High performance
+
+Acuity Index uses the [Sled](http://sled.rs/) key value database to create an event index that can handle very large query throughput. It is considerably more efficient than EVM indexed topics.
+
+Clients can request to either receive just the block number and event index of each event, or also receive the event data.
+
+Event data can then be verified as correct using the underlying light client of the chain.
+
+For maximum performance, the index can store the event data. Alternatively, it can retrieve this from the full node as required to save space.
+
+### Standardized payment API
+
+create fee market for indexes
+
+### Extensible
+
+full-text, geospatial, etc
+
+### Lower on-chain transaction fees
+
+### Privacy
+
+--
+
+Optionally it can index event variants. For example, the index could return a list of all balance transfers. This makes the index much larger.
 
 This entails the use of an index. Much like a full node, an event index consumes significant resources and takes a lot of time to synchronize. A dapp cannot maintain its own index. It needs to query an index run by someone else and verify the results using a light client.
 
